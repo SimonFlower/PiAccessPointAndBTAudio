@@ -1,81 +1,53 @@
-### Install and update Raspbian "lite" ###
+Setting up Wireless Access Point as IP router
+=============================================
 
+Instructions come from this website:
+https://github.com/billz/raspap-webgui
+
+Install Raspbian Buster Lite:
 Raspbian available here: https://www.raspberrypi.org/downloads/raspbian/
-I used "rufus" to write the image to memory card
+I used "rufus" to write the image to memory card.
 
-Change password for default user ("pi") from "raspberry"
+Change password for "pi" (from the default password of "raspberry").
 
-### Wireless access point ###
-
-Instructions based on this web page:
-https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md#internet-sharing
-But using interface setup from this page:
-https://raspberrypi.stackexchange.com/questions/47010/losing-access-to-raspberry-pi-after-bridge-br0-comes-up
-
-Update Rapsbian:
+Update OS:
 - sudo apt-get update
-- sudo apt-get upgrade
+- sudo apt-get dist-upgrade
+- sudo reboot
 
-Install software for wireless access point and bridging:
-- sudo apt install hostapd bridge-utils
-- sudo systemctl stop hostapd
+Set wireless to UK:
+sudo raspi-config
+  - Option 2 (Network Options)
+  - Option N2 (Wi-Fi)
+  - Select regulatory area ("GB") then exit
+Check configuration with:
+  - sudo iw reg get
 
-Bridging creates a higher-level construct over the two ports being bridged. It is the bridge that is the network device, so we need to stop the eth0 and wlan0 ports being allocated IP addresses by the DHCP client on the Raspberry Pi.
-- sudo nano /etc/dhcpcd.conf
+Install RaspAP:
+- curl -sL https://install.raspap.com | bash
+  - Take default options
 
-Add "denyinterfaces wlan0" and "denyinterfaces eth0" to the end of the file (but above any other added interface lines) and save the file.
+This marks the end of the instructions from the website.
+The default install does not work for UK wireless LAN.
 
-Add a new bridge, which in this case is called br0.
-- sudo brctl addbr br0
+Edit /etc/hostapd/hostapd.conf and make the following changes:
 
-Connect the network ports. In this case, connect eth0 to the bridge br0.
-- sudo brctl addif br0 eth0
+channel=1		==> channel=3
+country_code=   ==> country_code=GB
+#ieee80211n=1   ==> ieee80211n=1
+#wmm_enabled=1  ==> wmm_enabled=1
+#ht_capab=...   ==> ht_capab=...
+                ==> ignore_broadcast_ssid=0
+                ==> ieee80211d=1
+				==> macaddr_acl=0
+				
+Apply the new configuration:
+  systemctl hostapd restart
 
-Build the interface definition:
-- sudo nano /etc/network/interfaces
-  - auto eth0    
-  - auto wlan0
-  - 
-  - auto br0
-  - iface br0 inet static
-  -      address 192.168.1.29
-  -      netmask 255.255.255.0
-  -      gateway 192.168.1.30
-  - 
-  - bridge_ports eth0 wlan0 # build bridge
-  - bridge_fd 0             # no forwarding delay
-  - bridge_stp off          # disable Spanning Tree Protocol
 
-Configure the access point host software (hostapd). You need to edit the hostapd configuration file, located at /etc/hostapd/hostapd.conf, to add the various parameters for your wireless network. After initial install, this will be a new/empty file.
-- sudo nano /etc/hostapd/hostapd.conf
-  - interface=wlan0
-  - bridge=br0
-  - ssid=NETWORK
-  - hw_mode=g
-  - channel=7
-  - wmm_enabled=0
-  - macaddr_acl=0
-  - auth_algs=1
-  - ignore_broadcast_ssid=0
-  - wpa=2
-  - wpa_passphrase=PASSWORD
-  - wpa_key_mgmt=WPA-PSK
-  - wpa_pairwise=TKIP
-  - rsn_pairwise=CCMP
 
-We now need to tell the system where to find this configuration file.
-- sudo nano /etc/default/hostapd
-Find the line with #DAEMON_CONF, and replace it with this:
-  - DAEMON_CONF="/etc/hostapd/hostapd.conf"
-
-Now enable and start hostapd:
-- sudo systemctl unmask hostapd
-- sudo systemctl enable hostapd
-- sudo systemctl start hostapd
-
-Reboot
-
-### Bluetooth audio ###
+Setting up Bluetooth audio
+==========================
 
 Instructions based on this web page:
 https://www.raspberrypi.org/forums/viewtopic.php?f=38&t=247892
