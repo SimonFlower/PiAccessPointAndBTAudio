@@ -14,6 +14,21 @@ Set up sftp by running:
 - raspi-config
   - 5 Interfacing Options
   - P2 SSH
+  
+Turn off predictable network names by running:
+- raspi-config
+  - 2 Network Options
+  - N3 Network interface names
+  - <No>
+
+Set a static IP address (if the DHCP server doesn't allow you
+to fix IP addresses), by adding this section to /etc/dhcpcd.conf:
+- # static IP address for wired connection
+- # to go back to DHCP simply remove this section
+- interface eth0
+- static ip_address=192.168.1.201/24
+- static routers=192.168.1.254
+- static domain_name_servers=192.168.1.254
 
 Update OS:
 - sudo apt-get update
@@ -51,6 +66,11 @@ Apply the new configuration:
 
 When it comes time to change the WiFi SSID or password these
 are in the same file - /etc/hostapd/hostapd.conf
+
+Change default password for RaspAP by browsing to the IP
+address of the Raspberry PI, e.g.
+  http://192.168.1.201/
+Then go to the "Configure Auth" tab
 
 
 Setting up Bluetooth audio
