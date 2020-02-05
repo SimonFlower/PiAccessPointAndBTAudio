@@ -26,7 +26,7 @@ to fix IP addresses), by adding this section to /etc/dhcpcd.conf:
 - # static IP address for wired connection
 - # to go back to DHCP simply remove this section
 - interface eth0
-- static ip_address=192.168.1.201/24
+- static ip_address=192.168.1.202/24
 - static routers=192.168.1.254
 - static domain_name_servers=192.168.1.254
 
