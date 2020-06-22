@@ -71,7 +71,6 @@ channel=1       ==> channel=3
 country_code=   ==> country_code=GB
 #ieee80211n=1   ==> ieee80211n=1
 #wmm_enabled=1  ==> wmm_enabled=1
-#ht_capab=...   ==> ht_capab=...
                 ==> ignore_broadcast_ssid=0
                 ==> ieee80211d=1
                 ==> macaddr_acl=0
